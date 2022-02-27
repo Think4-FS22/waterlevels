@@ -1,12 +1,10 @@
 let img;
+let cellsize = 5;
+let xsteps;
+let ysteps;
 
-let p;
-let v;
-let step = 5;
-let samples = 10;
-
-let n = 10000;
-let drops = [];
+let slider; 
+let waterlevel = 0.5;
 
 function preload() {
   img = loadImage("heightmap.png");
@@ -17,92 +15,48 @@ function setup() {
   createCanvas(800, 800 / ratio);
 
   console.log(img.width, img.height);
-  // p = createVector(width / 2, height / 2);
-  // v = createVector(0, step);
 
-  for (let i = 0; i < n; i++) {
-    let d = new Drop(random(0, width), random(0, height));
-    drops.push(d);
-  }
+  xsteps = width/cellsize;
+  ysteps = height/cellsize;
 
-  frameRate(10);
-  background(250);
-  // image(img, 0, 0, width, height);
+  slider = createSlider(0,255,waterlevel,1);
+  slider.position(10, 10);
+ // waterlevel = slider.value();
+  slider.changed(function(){
+    waterlevel = slider.value();
+    console.log('slider input',waterlevel);
+    redraw();
+  });
+
+
 }
 
 function draw() {
-  // let theta = 260 / samples;
-  // let minVal = 1000;
-  // let minPos = null;
-  // for (let i = 0; i < samples; i++) {
-  //   let p2 = p5.Vector.add(p, v);
-  //   let lookupX = map(p2.x, 0, width, 0, img.width);
-  //   let lookupY = map(p2.y, 0, height, 0, img.height);
-  //   let col = img.get(lookupX, lookupY);
-  //   // console.log(col);
-  //   let r = red(col);
-  //   if (r < minVal) {
-  //     minVal = r;
-  //     minPos = p2;
-  //   }
-  //   v.rotate(radians(theta));
-  //   // console.log(r);
-  // }
+  background(255);
 
-  for (let i = 0; i < drops.length; i++) {
-    drops[i].update();
-  }
+  // image(img, 0, 0, width, height);
 
-  for (let i = 0; i < drops.length; i++) {
-    fill("red");
-    stroke(0, 0, 0, 20);
-    let d = drops[i];
-    line(d.position.x, d.position.y, d.prevPos.x, d.prevPos.y);
-    // ellipse(drops[i].position.x, drops[i].position.y, 3, 3);
-  }
-  // noStroke();
-  // fill("red");
-  // ellipse(p.x, p.y, 5, 5);
-  // fill("green");
-  // ellipse(minPos.x, minPos.y, 5, 5);
+  for(let i=0; i<xsteps; i++){
+    for(let j=0; j<ysteps; j++){
+      let x = i*cellsize;
+      let y = j*cellsize;
+      let lookupX = map(x,0,width,0,img.width);
+      let lookupY = map(y,0,height,0,img.height);
 
-  // p = minPos;
-
-  // noLoop();
-}
-
-// function mouseClicked() {
-//   console.log("mouseClicked");
-//   p.set(mouseX, mouseY);
-// }
-
-class Drop {
-  constructor(x, y) {
-    this.position = createVector(x, y);
-    this.prevPos = this.position.copy();
-    this.velocity = createVector(0, 3);
-  }
-
-  update() {
-    let samples = 10;
-    let theta = 360 / samples;
-    let minVal = 1000;
-    let minPos = null;
-    for (let i = 0; i < samples; i++) {
-      let p2 = p5.Vector.add(this.position, this.velocity);
-      let lookupX = map(p2.x, 0, width, 0, img.width);
-      let lookupY = map(p2.y, 0, height, 0, img.height);
-      let col = img.get(lookupX, lookupY);
-      // console.log(col);
+      let col = img.get(lookupX,lookupY);
       let r = red(col);
-      if (r < minVal) {
-        minVal = r;
-        minPos = p2;
+
+      if(r<waterlevel){
+        fill('steelblue');
+        noStroke();
+        rect(x,y,cellsize,cellsize);
       }
-      this.velocity.rotate(radians(theta));
-      // console.log(r);
+
     }
-    this.prevPos = this.position.copy();
-    this.position = minPos;
   }
+
+
+  noLoop();
 }
+
+
